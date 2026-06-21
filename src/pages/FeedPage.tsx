@@ -25,7 +25,7 @@ export function FeedPage() {
 			{/* Hero */}
 			<div className="text-center mb-10">
 				<h1 className="font-display text-5xl font-bold text-[var(--color-mauve-dark)] mb-3">
-					Cringy Nostalgia
+					CRINGY NOSTALGIA
 				</h1>
 				<p className="text-[var(--color-ink-light)] text-lg max-w-md mx-auto">
 					Reviviendo la literatura juvenil. Sobreviviendo al cringe.

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Playfair Display", Georgia, serif;
+  --font-display: Poppins, Georgia, serif;
   --font-body: "Inter", system-ui, sans-serif;
 
   /* ── Cringy pastel palette ── */
@@ -25,7 +25,7 @@
 }
 
 body {
-  background-color: var(--color-cream);
+  background: linear-gradient(0deg, var(--color-cream) 20%, white);
   color: var(--color-ink);
   font-family: var(--font-body);
 }
@@ -44,6 +44,10 @@ input::placeholder,
 textarea::placeholder {
   color: var(--color-ink-light);
   opacity: 0.7;
+}
+
+button {
+  cursor: pointer;
 }
 
 /* Keep Tailwind's bg-white utilities aligned with the app surface */
