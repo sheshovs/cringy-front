@@ -1,0 +1,165 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Inter", system-ui, sans-serif;
+
+  /* ── Dark palette ── */
+  --color-cream:        #0d1a15;   /* main page background */
+  --color-surface:      #162119;   /* cards, inputs, modals */
+  --color-parchment:    #2e4438;   /* elevated sections — book page bg */
+  --color-accent:       #3a6a5a;   /* rgb(58,106,90) */
+  --color-accent-light: #4a8a72;   /* hover of accent */
+  --color-mauve:        #9ec49b;   /* lighter sage for rings/borders */
+  --color-mauve-dark:   #7EAA7B;   /* primary accent: headings, links (text only) */
+  --color-rose-dust:    #9ec49b;
+  --color-teal-muted:   #3a6a5a;   /* = accent */
+  --color-teal-dark:    #4a8a72;   /* = accent-light */
+  /* ── Accessible button tokens (WCAG AA compliant with white text) ── */
+  --color-btn-primary:       #3d6b3a;   /* white CR 6.25:1 ✅ */
+  --color-btn-primary-hover: #4a7a47;   /* white CR 5.03:1 ✅ */
+  /* ── Accessible teal for text on dark backgrounds ── */
+  --color-teal-text:    #52a088;   /* CR 5.33:1 on surface, 5.73:1 on cream ✅ */
+  /* ── Accessible secondary text on --color-parchment backgrounds ── */
+  --color-parchment-text: #8abcaa; /* CR 4.93:1 on parchment, 7.84:1 on surface ✅ */
+  --color-ink:          #e0ede8;   /* text primary */
+  --color-ink-light:    #7fa898;   /* text secondary */
+  --color-border:       #2a3d32;   /* borders */
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+/* ── Global form element dark mode ── */
+input, select, textarea {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-ink-light);
+  opacity: 0.7;
+}
+
+/* Fix Tailwind's bg-white / hover:bg-white to use surface in dark mode */
+.bg-white {
+  background-color: var(--color-surface) !important;
+}
+.hover\:bg-white:hover {
+  background-color: var(--color-parchment) !important;
+}
+
+/* Fix bg-white with opacity modifiers (bg-white/95 etc.) */
+.bg-white\/95,
+.bg-white\/90,
+.bg-white\/80 {
+  background-color: color-mix(in srgb, var(--color-surface) 95%, transparent) !important;
+}
+
+/* Error states */
+.bg-red-50 {
+  background-color: rgba(180, 60, 60, 0.12) !important;
+}
+.border-red-200 {
+  border-color: rgba(180, 60, 60, 0.35) !important;
+}
+.text-red-600 {
+  color: #f08080 !important;
+}
+.hover\:bg-red-50:hover {
+  background-color: rgba(180, 60, 60, 0.15) !important;
+}
+
+/* ── Book page flip animation ── */
+
+.book-scene {
+  perspective: 1200px;
+}
+
+.book-spread {
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.page-flip {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  pointer-events: none;
+  z-index: 20;
+}
+
+@keyframes flip-forward {
+  0%   { transform: rotateY(0deg);    }
+  40%  { transform: rotateY(-90deg);  box-shadow: -20px 0 40px rgba(0,0,0,0.4); }
+  100% { transform: rotateY(-180deg); }
+}
+
+@keyframes flip-backward {
+  0%   { transform: rotateY(-180deg); }
+  60%  { transform: rotateY(-90deg);  box-shadow: -20px 0 40px rgba(0,0,0,0.4); }
+  100% { transform: rotateY(0deg);    }
+}
+
+.page-flip.flip-forward  { animation: flip-forward  0.55s cubic-bezier(0.645, 0.045, 0.355, 1.000) forwards; }
+.page-flip.flip-backward { animation: flip-backward 0.55s cubic-bezier(0.645, 0.045, 0.355, 1.000) forwards; }
+
+.page-flip .page-front {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 0 8px 8px 0;
+  overflow: hidden;
+}
+
+.page-flip .page-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: rotateY(180deg);
+  border-radius: 0 8px 8px 0;
+  overflow: hidden;
+  background: var(--color-parchment);
+}
+
+.page-flip .page-shadow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 0 8px 8px 0;
+}
+
+.page-flip.flip-forward .page-shadow {
+  background: linear-gradient(to right, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.0) 100%);
+}
+
+.page-flip.flip-backward .page-shadow {
+  background: linear-gradient(to left, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.0) 100%);
+}
+
+/* ── Book page scrollbar ── */
+.book-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.book-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.book-scroll::-webkit-scrollbar-thumb {
+  background: var(--scroll-color, var(--color-accent));
+  border-radius: 2px;
+  opacity: 0.6;
+}
+.book-scroll::-webkit-scrollbar-thumb:hover {
+  opacity: 1;
+}
