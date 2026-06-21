@@ -1,22 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { Book } from '../types'
-
-// Fallback palette — jewel tones that pop against #0d1a15
-const COVER_PALETTES = [
-  { spine: '#1a5c4e', cover: '#28917a', light: '#4abda0' }, // Esmeralda
-  { spine: '#1a4f8a', cover: '#2e7fd4', light: '#5aa8f0' }, // Zafiro
-  { spine: '#5e1a72', cover: '#9a35b8', light: '#c060d8' }, // Amatista
-  { spine: '#8a1a38', cover: '#c8325a', light: '#e86080' }, // Rubí
-  { spine: '#8a6000', cover: '#c88a1a', light: '#e8b040' }, // Ámbar
-  { spine: '#1a6a38', cover: '#28a85a', light: '#40d07a' }, // Jade
-]
-
-function darkenHex(hex: string, amount = 40): string {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `#${Math.max(0, r - amount).toString(16).padStart(2, '0')}${Math.max(0, g - amount).toString(16).padStart(2, '0')}${Math.max(0, b - amount).toString(16).padStart(2, '0')}`
-}
+import { getBookPalette } from '../lib/bookPresets'
 
 function getPatternTransform(bookId: string): string {
   const hash = bookId.split('').reduce((a, c, i) => a + c.charCodeAt(0) * (i + 1), 0)
@@ -24,14 +8,6 @@ function getPatternTransform(bookId: string): string {
   const ox = (hash * 3) % 14
   const oy = (hash * 7) % 14
   return `rotate(${rotation}) translate(${ox} ${oy})`
-}
-
-function getPalette(book: Book) {
-  if (book.coverColor) {
-    const c = book.coverColor
-    return { spine: darkenHex(c, 35), cover: c, light: c }
-  }
-  return COVER_PALETTES[book.title.charCodeAt(0) % COVER_PALETTES.length]
 }
 
 function PatternDef({ id, pattern, transform }: { id: string; pattern: string; transform: string }) {
@@ -102,7 +78,7 @@ interface BookCardProps {
 }
 
 export function BookCard({ book, showUser = true, linkTo, actions }: BookCardProps) {
-  const palette = getPalette(book)
+  const palette = getBookPalette(book)
   const href = linkTo ?? `/books/${book.id}`
   const patternId = `pat-${book.id}`
   const hasPattern = book.coverPattern && book.coverPattern !== 'none'
@@ -148,7 +124,7 @@ export function BookCard({ book, showUser = true, linkTo, actions }: BookCardPro
               className="absolute right-0 top-0 h-full"
               style={{
                 width: '6px',
-                background: 'repeating-linear-gradient(to bottom, #1e2d26 0px, #162119 1px, #1e2d26 2px)',
+                background: `repeating-linear-gradient(to bottom, ${palette.pageLine} 0px, ${palette.page} 1px, ${palette.pageLine} 2px)`,
               }}
             />
 
@@ -196,7 +172,7 @@ export function BookCard({ book, showUser = true, linkTo, actions }: BookCardPro
             {!book.isPublic && (
               <div
                 className="absolute top-2 right-2 text-xs px-1.5 py-0.5 rounded"
-                style={{ background: 'rgba(0,0,0,0.45)', color: '#c0d8cc', fontSize: '9px' }}
+                style={{ background: 'rgba(24,49,35,0.72)', color: '#ADEEC5', fontSize: '9px' }}
               >
                 privado
               </div>

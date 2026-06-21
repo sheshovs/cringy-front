@@ -18,6 +18,7 @@ export interface Book {
   description?: string | null
   coverColor?: string | null
   coverPattern?: string | null
+  colorPreset?: string | null
   isPublic: boolean
   userId: string
   createdAt: string

@@ -5,6 +5,8 @@ import { booksApi, readingsApi } from '../api'
 import { ReadingForm } from '../components/ReadingForm'
 import { useAuth } from '../store/AuthContext'
 import type { Reading } from '../types'
+import { getBookPalette } from '../lib/bookPresets'
+import type { BookColorPreset } from '../lib/bookPresets'
 
 const STATUS_LABELS: Record<string, string> = {
   WANT_TO_READ: 'Quiero leerlo',
@@ -14,26 +16,10 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  WANT_TO_READ: '#1a3028',
-  READING:      '#0f2535',
-  FINISHED:     '#0d2a1a',
-  DROPPED:      '#2a1020',
-}
-
-const COVER_PALETTES = [
-  { spine: '#1a5c4e', cover: '#28917a', light: '#4abda0' }, // Esmeralda
-  { spine: '#1a4f8a', cover: '#2e7fd4', light: '#5aa8f0' }, // Zafiro
-  { spine: '#5e1a72', cover: '#9a35b8', light: '#c060d8' }, // Amatista
-  { spine: '#8a1a38', cover: '#c8325a', light: '#e86080' }, // Rubí
-  { spine: '#8a6000', cover: '#c88a1a', light: '#e8b040' }, // Ámbar
-  { spine: '#1a6a38', cover: '#28a85a', light: '#40d07a' }, // Jade
-]
-
-function darkenHex(hex: string, amount = 35): string {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `#${Math.max(0, r - amount).toString(16).padStart(2, '0')}${Math.max(0, g - amount).toString(16).padStart(2, '0')}${Math.max(0, b - amount).toString(16).padStart(2, '0')}`
+  WANT_TO_READ: '#EDBBAD',
+  READING:      '#EDADCA',
+  FINISHED:     '#ADEEC5',
+  DROPPED:      '#B98F83',
 }
 
 // ── Page content renderer ──────────────────────────────────────────────────
@@ -49,7 +35,7 @@ function PageContent({
   pageIndex: number
   readings: Reading[]
   book: { title: string; description?: string | null; user?: { username: string } | null }
-  palette: typeof COVER_PALETTES[0]
+  palette: BookColorPreset
   isOwner: boolean
   onEdit: (r: Reading) => void
   onDelete: (r: Reading) => void
@@ -270,11 +256,7 @@ export function BookDetailPage() {
   const isOwner = user?.id === book?.userId
   const totalPages = readings.length
 
-  const palette = book
-    ? book.coverColor
-      ? { spine: darkenHex(book.coverColor, 35), cover: book.coverColor, light: book.coverColor }
-      : COVER_PALETTES[book.title.charCodeAt(0) % COVER_PALETTES.length]
-    : COVER_PALETTES[0]
+  const palette = book ? getBookPalette(book) : getBookPalette({ title: '', coverColor: null, colorPreset: null })
 
   const ANIM_MS = 550
 
@@ -425,7 +407,7 @@ export function BookDetailPage() {
                  <div
                   className="absolute right-0 top-2 bottom-2 w-2 rounded-r"
                   style={{
-                    background: 'repeating-linear-gradient(to bottom, #1e2d26 0px, #162119 1px, #1e2d26 3px)',
+                    background: `repeating-linear-gradient(to bottom, ${palette.pageLine} 0px, ${palette.page} 1px, ${palette.pageLine} 3px)`,
                     boxShadow: '2px 0 4px rgba(0,0,0,0.3)',
                   }}
                 />
@@ -434,7 +416,7 @@ export function BookDetailPage() {
               {/* Current page content (static — behind the flip) */}
               <div
                 className="absolute inset-0 ml-6 mr-2 flex flex-col"
-                style={{ background: 'var(--color-parchment)', zIndex: 1 }}
+                style={{ background: palette.page, zIndex: 1 }}
               >
                 <PageContent pageIndex={displayPage} {...pageProps} />
               </div>
@@ -447,7 +429,7 @@ export function BookDetailPage() {
                       - backward: destination page (empieza doblada y se abre) */}
                   <div
                     className="page-front ml-6 mr-2 flex flex-col"
-                    style={{ background: 'var(--color-parchment)' }}
+                    style={{ background: palette.page }}
                   >
                     <PageContent pageIndex={pendingPage} {...pageProps} />
                     <div className="page-shadow" />
@@ -456,12 +438,12 @@ export function BookDetailPage() {
                   {/* Back face: paper texture visible al medio del giro */}
                   <div
                     className="page-back ml-6 mr-2"
-                    style={{ background: '#0d1f18' }}
+                    style={{ background: palette.page }}
                   >
                     <div
                       className="absolute inset-0 opacity-30"
                       style={{
-                        backgroundImage: 'repeating-linear-gradient(to bottom, transparent 0px, transparent 27px, #1e3828 28px)',
+                        backgroundImage: `repeating-linear-gradient(to bottom, transparent 0px, transparent 27px, ${palette.pageLine} 28px)`,
                         backgroundSize: '100% 28px',
                       }}
                     />

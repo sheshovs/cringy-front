@@ -8,25 +8,7 @@ import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Book } from '../types'
-
-// ── Cover customisation constants ────────────────────────────────────────────
-
-const COVER_SWATCHES = [
-  '#3a6a5a', '#2d5040', '#1a3a5a', '#4a3a7a',
-  '#7a3050', '#6a3020', '#5a4a20', '#1a4a5a',
-  '#5a3a6a', '#3a3a5a', '#6a2a3a', '#4a2a1a',
-]
-
-const PATTERNS = [
-  { id: 'none',        label: 'Ninguno',    emoji: '—'  },
-  { id: 'flowers',     label: 'Flores',     emoji: '🌸' },
-  { id: 'plants',      label: 'Plantas',    emoji: '🌿' },
-  { id: 'stars',       label: 'Estrellas',  emoji: '✨' },
-  { id: 'waves',       label: 'Ondas',      emoji: '〰️' },
-  { id: 'diamonds',    label: 'Diamantes',  emoji: '🔷' },
-  { id: 'dots',        label: 'Lunares',    emoji: '⚫' },
-  { id: 'butterflies', label: 'Mariposas',  emoji: '🦋' },
-]
+import { BOOK_COLOR_PRESETS, getBookPalette } from '../lib/bookPresets'
 
 // ── Zod schema ────────────────────────────────────────────────────────────────
 
@@ -34,16 +16,14 @@ const bookSchema = z.object({
   title:        z.string().min(1, 'El título es obligatorio').max(100),
   description:  z.string().max(500).optional(),
   isPublic:     z.boolean().optional(),
-  coverColor:   z.string().optional(),
-  coverPattern: z.string().optional(),
+  colorPreset:  z.string().optional().nullable(),
 })
 
 type BookFormData = {
   title: string
   description?: string
   isPublic?: boolean
-  coverColor?: string
-  coverPattern?: string
+  colorPreset?: string | null
 }
 
 // ── BookFormModal ─────────────────────────────────────────────────────────────
@@ -63,13 +43,20 @@ function BookFormModal({
       title:        initial?.title || '',
       description:  initial?.description || '',
       isPublic:     initial?.isPublic ?? false,
-      coverColor:   initial?.coverColor || '#3a6a5a',
-      coverPattern: initial?.coverPattern || 'none',
+      colorPreset:  initial ? initial.colorPreset || '' : BOOK_COLOR_PRESETS[0].id,
     },
   })
 
-  const coverColor   = watch('coverColor')   || '#3a6a5a'
-  const coverPattern = watch('coverPattern') || 'none'
+  const colorPreset = watch('colorPreset') || ''
+  const previewBook = {
+    title: watch('title') || initial?.title || 'Nueva colección',
+    coverColor: initial?.coverColor ?? null,
+    colorPreset: colorPreset || null,
+  }
+  const previewPalette = getBookPalette(previewBook)
+
+  const submit = (data: BookFormData) =>
+    onSubmit({ ...data, colorPreset: data.colorPreset || null })
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4">
@@ -86,7 +73,7 @@ function BookFormModal({
 
         {/* Scrollable body */}
         <div className="overflow-y-auto flex-1 px-6 py-5">
-          <form id="book-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <form id="book-form" onSubmit={handleSubmit(submit)} className="space-y-5">
 
             {/* Título */}
             <div>
@@ -120,67 +107,68 @@ function BookFormModal({
               <span className="text-sm text-[var(--color-ink)]">Hacer esta colección pública</span>
             </label>
 
-            {/* ── Portada ──────────────────────────────────────────── */}
+            {/* ── Estilo del libro ─────────────────────────────────── */}
             <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-parchment)] p-4 space-y-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-ink)]">
-                Portada
+                Estilo del libro
               </h3>
 
-              {/* Color */}
-              <div>
-                <label className="block text-sm font-medium text-[var(--color-ink)] mb-2">Color</label>
-                <input type="hidden" {...register('coverColor')} />
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {COVER_SWATCHES.map((swatch) => (
-                    <button
-                      key={swatch}
-                      type="button"
-                      onClick={() => setValue('coverColor', swatch)}
-                      className="w-7 h-7 rounded-full border-2 transition-transform hover:scale-110"
-                      style={{
-                        background: swatch,
-                        borderColor: coverColor === swatch ? '#e0ede8' : 'transparent',
-                        boxShadow: coverColor === swatch ? '0 0 0 1px rgba(224,237,232,0.3)' : 'none',
-                      }}
-                      title={swatch}
-                    />
-                  ))}
-                </div>
-                <div className="flex items-center gap-2">
-                  <label className="text-xs text-[var(--color-ink-light)]">Personalizado:</label>
-                  <input
-                    type="color"
-                    value={coverColor}
-                    onChange={(e) => setValue('coverColor', e.target.value)}
-                    className="w-8 h-7 rounded cursor-pointer border border-[var(--color-border)] p-0.5"
-                    style={{ background: 'var(--color-surface)' }}
-                  />
-                  <span className="text-xs text-[var(--color-ink-light)] font-mono">{coverColor}</span>
+              <input type="hidden" {...register('colorPreset')} />
+
+              <div
+                className="rounded-lg border border-[var(--color-border)] overflow-hidden"
+                style={{ background: previewPalette.page }}
+              >
+                <div className="flex min-h-24">
+                  <div className="w-16 shrink-0" style={{ background: previewPalette.spine }} />
+                  <div
+                    className="w-24 shrink-0 flex items-center justify-center px-3"
+                    style={{ background: `linear-gradient(135deg, ${previewPalette.cover}, ${previewPalette.spine})` }}
+                  >
+                    <span className="font-display text-center text-xs font-bold leading-tight text-white">
+                      {previewBook.title}
+                    </span>
+                  </div>
+                  <div className="flex-1 p-4 space-y-2">
+                    <div className="h-2 rounded-full w-2/3" style={{ background: previewPalette.accent }} />
+                    <div className="h-px w-full" style={{ background: previewPalette.pageLine }} />
+                    <div className="h-px w-5/6" style={{ background: previewPalette.pageLine }} />
+                    <div className="h-px w-3/4" style={{ background: previewPalette.pageLine }} />
+                  </div>
                 </div>
               </div>
 
-              {/* Patrón */}
               <div>
-                <label className="block text-sm font-medium text-[var(--color-ink)] mb-2">Patrón</label>
-                <input type="hidden" {...register('coverPattern')} />
-                <div className="grid grid-cols-4 gap-2">
-                  {PATTERNS.map((p) => (
+                <label className="block text-sm font-medium text-[var(--color-ink)] mb-2">Preset</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {BOOK_COLOR_PRESETS.map((preset) => (
                     <button
-                      key={p.id}
+                      key={preset.id}
                       type="button"
-                      onClick={() => setValue('coverPattern', p.id)}
-                      className="flex flex-col items-center gap-1 rounded-lg py-2 px-1 border transition-colors text-xs"
+                      onClick={() => setValue('colorPreset', preset.id)}
+                      className="rounded-lg border p-2 text-left transition-transform hover:-translate-y-0.5"
                       style={{
-                        background: coverPattern === p.id ? 'var(--color-accent)' : 'var(--color-surface)',
-                        borderColor: coverPattern === p.id ? 'var(--color-accent-light)' : 'var(--color-border)',
-                        color: coverPattern === p.id ? '#fff' : 'var(--color-ink-light)',
+                        background: colorPreset === preset.id ? 'var(--color-surface)' : 'rgba(255,255,255,0.45)',
+                        borderColor: colorPreset === preset.id ? 'var(--color-accent)' : 'var(--color-border)',
+                        boxShadow: colorPreset === preset.id ? '0 0 0 1px rgba(24,49,35,0.18)' : 'none',
                       }}
                     >
-                      <span className="text-base leading-none">{p.emoji}</span>
-                      <span className="truncate w-full text-center">{p.label}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="flex overflow-hidden rounded border border-black/10" style={{ width: 34, height: 22 }}>
+                          <span className="w-2" style={{ background: preset.spine }} />
+                          <span className="w-3" style={{ background: preset.cover }} />
+                          <span className="flex-1" style={{ background: preset.page }} />
+                        </span>
+                        <span className="text-xs font-medium text-[var(--color-ink)]">{preset.label}</span>
+                      </div>
                     </button>
                   ))}
                 </div>
+                {initial && !initial.colorPreset && initial.coverColor && (
+                  <p className="mt-2 text-xs text-[var(--color-ink-light)]">
+                    Este libro conserva un color anterior hasta que elijas un preset.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -296,7 +284,7 @@ export function MyBooksPage() {
                     {/* Editar */}
                     <button
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditing(book) }}
-                      className="w-28 py-1.5 rounded-md text-xs font-medium transition-colors duration-150 bg-[#3a6a5a]/80 hover:bg-[#4a8a72]/90 text-[#e0ede8] border border-[#4a8a72]/40 hover:border-[#4a8a72]/70"
+                      className="w-28 py-1.5 rounded-md text-xs font-medium transition-colors duration-150 bg-[#3F6E50]/85 hover:bg-[#315A40]/95 text-white border border-[#ADEEC5]/50 hover:border-[#ADEEC5]/80"
                     >
                       Editar
                     </button>
@@ -308,7 +296,7 @@ export function MyBooksPage() {
                         e.stopPropagation()
                         togglePublic.mutate({ id: book.id, isPublic: !book.isPublic })
                       }}
-                      className="w-28 py-1.5 rounded-md text-xs font-medium transition-colors duration-150 bg-[#1e2d26]/80 hover:bg-[#2a3d32]/90 text-[#7fa898] hover:text-[#9fc8b8] border border-[#2a3d32]/60 hover:border-[#3a5a48]/80"
+                      className="w-28 py-1.5 rounded-md text-xs font-medium transition-colors duration-150 bg-[#EDBBAD]/90 hover:bg-[#EDADCA]/95 text-[#183123] border border-[#ADEEC5]/50 hover:border-[#ADEEC5]/80"
                     >
                       {book.isPublic ? 'Hacer privado' : 'Hacer público'}
                     </button>
@@ -320,7 +308,7 @@ export function MyBooksPage() {
                         e.stopPropagation()
                         if (confirm(`¿Eliminar "${book.title}"?`)) deleteMutation.mutate(book.id)
                       }}
-                      className="w-28 py-1.5 rounded-md text-xs font-medium transition-colors duration-150 bg-[#7a1e32]/80 hover:bg-[#a02040]/90 text-[#f4a0a0] hover:text-[#ffb8b8] border border-[#a02040]/40 hover:border-[#c03050]/60"
+                      className="w-28 py-1.5 rounded-md text-xs font-medium transition-colors duration-150 bg-[#8E3347]/85 hover:bg-[#6E2637]/95 text-white border border-[#EDADCA]/50 hover:border-[#EDADCA]/80"
                     >
                       Eliminar
                     </button>

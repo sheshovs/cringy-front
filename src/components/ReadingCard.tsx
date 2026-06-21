@@ -8,10 +8,10 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  WANT_TO_READ: '#1a3028',
-  READING:      '#0f2535',
-  FINISHED:     '#0d2a1a',
-  DROPPED:      '#2a1020',
+  WANT_TO_READ: '#EDBBAD',
+  READING:      '#EDADCA',
+  FINISHED:     '#ADEEC5',
+  DROPPED:      '#B98F83',
 }
 
 interface ReadingCardProps {

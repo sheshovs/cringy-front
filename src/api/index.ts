@@ -30,9 +30,9 @@ export const booksApi = {
   getMyBooks: () => api.get<{ books: Book[] }>('/books/me'),
   getBook: (id: string) => api.get<{ book: Book }>(`/books/${id}`),
   getUserBooks: (userId: string) => api.get<{ books: Book[] }>(`/books/user/${userId}`),
-  createBook: (data: { title: string; description?: string; isPublic?: boolean; coverColor?: string; coverPattern?: string }) =>
+  createBook: (data: { title: string; description?: string; isPublic?: boolean; coverColor?: string; coverPattern?: string; colorPreset?: string | null }) =>
     api.post<{ book: Book }>('/books', data),
-  updateBook: (id: string, data: Partial<{ title: string; description: string; isPublic: boolean; coverColor: string; coverPattern: string }>) =>
+  updateBook: (id: string, data: Partial<{ title: string; description: string; isPublic: boolean; coverColor: string; coverPattern: string; colorPreset: string | null }>) =>
     api.put<{ book: Book }>(`/books/${id}`, data),
   deleteBook: (id: string) => api.delete(`/books/${id}`),
 }
