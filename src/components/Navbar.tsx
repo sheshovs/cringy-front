@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../store/AuthContext"
-import cringyLogo from "../assets/cringy-logo.png"
+import cringyLogo from "../assets/logo-cringy.webp"
 
 export function Navbar() {
 	const { user, logout } = useAuth()
@@ -12,7 +12,7 @@ export function Navbar() {
 	}
 
 	return (
-		<nav className="sticky top-0 z-50 border-b border-[var(--color-border)] backdrop-blur">
+		<nav className="sticky top-0 z-50 backdrop-blur">
 			<div className="max-w-5xl mx-auto px-4 h-20 flex items-center justify-between">
 				<Link
 					to="/"

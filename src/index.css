@@ -11,12 +11,12 @@
   --color-accent:       #3F6E50;   /* primary green */
   --color-accent-light: #EDADCA;   /* focus rings and soft details */
   --color-mauve:        #183123;   /* secondary accent */
-  --color-mauve-dark:   #3F6E50;   /* headings, links */
+  --color-mauve-dark:   #C01B43;   /* headings, links */
   --color-rose-dust:    #EDADCA;
   --color-teal-muted:   #3F6E50;
   --color-teal-dark:    #315A40;
-  --color-btn-primary:       #3F6E50;
-  --color-btn-primary-hover: #315A40;
+  --color-btn-primary:       #C01B43;
+  --color-btn-primary-hover: #DE3163;
   --color-teal-text:    #2F5B40;
   --color-parchment-text: #24442F;
   --color-ink:          #183123;
