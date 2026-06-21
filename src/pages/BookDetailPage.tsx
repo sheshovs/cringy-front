@@ -455,6 +455,7 @@ export function BookDetailPage() {
 	})
 
 	const isFollowing = followersData?.followers.some((f) => f.id === user?.id)
+	const isLogin = !!user
 	const isNotMe = user?.username !== username
 
 	const followMutation = useMutation({
@@ -659,7 +660,7 @@ export function BookDetailPage() {
 					Usa las flechas del teclado ← → para navegar
 				</p>
 
-				{isNotMe && (
+				{isNotMe && isLogin ? (
 					<div className="mt-4">
 						<button
 							onClick={() => followMutation.mutate()}
@@ -673,7 +674,7 @@ export function BookDetailPage() {
 							{isFollowing ? "Dejar de seguir" : "Seguir"}
 						</button>
 					</div>
-				)}
+				) : null}
 			</div>
 
 			{/* Form modal */}
