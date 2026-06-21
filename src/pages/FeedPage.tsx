@@ -52,7 +52,9 @@ export function FeedPage() {
 			{user && (
 				<div className="flex items-center gap-3 mb-6">
 					<h2 className="font-display text-2xl font-semibold text-[var(--color-ink)]">
-						{explore ? "Explorar todos los libros" : "De personas que sigues"}
+						{explore
+							? "Explorar todas las colecciones"
+							: "De personas que sigues"}
 					</h2>
 					<button
 						onClick={() => {
@@ -89,18 +91,18 @@ export function FeedPage() {
 						<>
 							<p className="text-lg mb-3">Nada por aquí todavía.</p>
 							<p className="text-sm">
-								Sigue a otros lectores para ver sus libros, o
+								Sigue a otros lectores para ver sus colecciones, o
 							</p>
 							<button
 								onClick={() => setExplore(true)}
 								className="mt-2 text-[var(--color-mauve-dark)] underline text-sm"
 							>
-								explora todos los libros públicos
+								explora todas las colecciones públicas
 							</button>
 						</>
 					) : (
 						<p className="text-lg">
-							Aún no hay libros públicos. ¡Sé el primero!
+							Aún no hay colecciones públicas. ¡Sé el primero!
 						</p>
 					)}
 				</div>

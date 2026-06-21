@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useParams, Link } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { booksApi, readingsApi } from "../api"
+import { booksApi, readingsApi, usersApi } from "../api"
 import { ReadingForm } from "../components/ReadingForm"
 import { useAuth } from "../store/AuthContext"
 import type { Reading } from "../types"
@@ -345,7 +345,7 @@ export function BookDetailPage() {
 	const [pendingPage, setPendingPage] = useState<number | null>(null)
 	const isAnimating = useRef(false)
 
-	const { data, isLoading } = useQuery({
+	const { data, isLoading: isLoadingBookData } = useQuery({
 		queryKey: ["book", id],
 		queryFn: () => booksApi.getBook(id!).then((r) => r.data),
 	})
@@ -438,6 +438,37 @@ export function BookDetailPage() {
 			if (currentPage > newTotal) goToPage(newTotal)
 		},
 	})
+
+	const username = book?.user?.username
+
+	const { data: profileData, isLoading: isLoadingProfileData } = useQuery({
+		queryKey: ["profile", username],
+		queryFn: () => usersApi.getProfile(username!).then((r) => r.data),
+	})
+
+	const profile = profileData?.user
+
+	const { data: followersData } = useQuery({
+		queryKey: ["followers", profile?.id],
+		queryFn: () => usersApi.getFollowers(profile!.id).then((r) => r.data),
+		enabled: !!profile,
+	})
+
+	const isFollowing = followersData?.followers.some((f) => f.id === user?.id)
+	const isNotMe = user?.username !== username
+
+	const followMutation = useMutation({
+		mutationFn: () =>
+			isFollowing
+				? usersApi.unfollow(profile!.id)
+				: usersApi.follow(profile!.id),
+		onSuccess: () => {
+			qc.invalidateQueries({ queryKey: ["followers", profile?.id] })
+			qc.invalidateQueries({ queryKey: ["profile", username] })
+		},
+	})
+
+	const isLoading = isLoadingBookData || isLoadingProfileData
 
 	if (isLoading) {
 		return (
@@ -627,6 +658,22 @@ export function BookDetailPage() {
 				<p className="mt-3 text-xs text-[var(--color-ink-light)]">
 					Usa las flechas del teclado ← → para navegar
 				</p>
+
+				{isNotMe && (
+					<div className="mt-4">
+						<button
+							onClick={() => followMutation.mutate()}
+							disabled={followMutation.isPending}
+							className={`text-sm px-4 py-1.5 rounded-full transition-colors ${
+								isFollowing
+									? "border border-[var(--color-border)] text-[var(--color-ink-light)] hover:bg-[var(--color-parchment)]"
+									: "bg-[var(--color-btn-primary)] text-white hover:bg-[var(--color-btn-primary-hover)]"
+							}`}
+						>
+							{isFollowing ? "Dejar de seguir" : "Seguir"}
+						</button>
+					</div>
+				)}
 			</div>
 
 			{/* Form modal */}

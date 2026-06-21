@@ -181,7 +181,7 @@ function BookFormModal({
 
 							<div>
 								<label className="block text-sm font-medium text-[var(--color-ink)] mb-2">
-									Preset
+									Estilo
 								</label>
 								<div className="grid grid-cols-2 gap-2">
 									{BOOK_COLOR_PRESETS.map((preset) => (
@@ -208,23 +208,20 @@ function BookFormModal({
 											<div className="flex items-center gap-2">
 												<span
 													className="flex overflow-hidden rounded border border-black/10"
-													style={{ width: 34, height: 22 }}
+													style={{ width: "100%", height: 22 }}
 												>
 													<span
-														className="w-2"
+														className="flex-1"
 														style={{ background: preset.spine }}
 													/>
 													<span
-														className="w-3"
+														className="flex-1"
 														style={{ background: preset.cover }}
 													/>
 													<span
 														className="flex-1"
 														style={{ background: preset.page }}
 													/>
-												</span>
-												<span className="text-xs font-medium text-[var(--color-ink)]">
-													{preset.label}
 												</span>
 											</div>
 										</button>

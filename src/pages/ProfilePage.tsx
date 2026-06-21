@@ -118,7 +118,7 @@ export function ProfilePage() {
 							<strong className="text-[var(--color-ink)]">
 								{profile._count?.books ?? 0}
 							</strong>{" "}
-							libros
+							colecciones
 						</span>
 						<span>
 							<strong className="text-[var(--color-ink)]">
